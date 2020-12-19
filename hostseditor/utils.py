@@ -1,4 +1,5 @@
 import os
+import typing
 from pathlib import Path
 
 
@@ -10,5 +11,5 @@ def get_hosts_file_path() -> Path:
     return _get_common_hosts_file_dir() / 'hosts'
 
 
-def get_hosts_file_backup_path() -> Path:
-    return _get_common_hosts_file_dir() / 'hosts_backup'
+def get_hosts_file_backup_path(hosts_file_path: str) -> Path:
+    return Path(hosts_file_path).parent / 'hosts_backup'
