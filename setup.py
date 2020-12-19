@@ -17,5 +17,6 @@ setup(
     keywords="hosts file editing api",
     url="",
     packages=find_packages(),
-    long_description=read('README.md')
+    long_description=read('README.md'),
+    install_requires=read('requirement.txt').splitlines()
 )

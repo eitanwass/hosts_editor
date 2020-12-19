@@ -1,3 +1,4 @@
+from __future__ import annotations
 import typing
 from shutil import copy
 from pathlib import Path
@@ -13,10 +14,27 @@ class HostEntry:
         self.ip = ip
         self.names = names
 
+    @staticmethod
+    def parse(line) -> typing.Union[HostEntry, None]:
+        if line and not line.strip().startswith(COMMENT_CHAR):
+            return HostEntry(line.split()[0], line.split()[1:])
+        return None
+
+    def has(self, **kwargs) -> bool:
+        ip_filter = kwargs.get('ip')
+        names_filter = kwargs.get('names')
+
+        if ip_filter and self.ip != ip_filter:
+            return False
+        if names_filter and self.names != names_filter:
+            return False
+        return True
+
 
 class HostsEditor:
     def __init__(self, path: str = None, create_backup: bool = True):
-        self.path = path or get_hosts_file_path()
+        self.path = Path(path) or get_hosts_file_path()
+        self.backup_path = get_hosts_file_backup_path(path)
         self.backup = None
 
         if create_backup:
@@ -26,15 +44,44 @@ class HostsEditor:
         if not physical and not memory:
             print(f"create_backup called but both backup methods are disabled")
         if physical:
-            copy(str(self.path), str(get_hosts_file_backup_path()))
+            copy(str(self.path), str(self.backup_path))
         if memory:
             self.backup = self.read_raw()
+
+    # **** Read **** #
 
     def read_raw(self):
         return Path(self.path).read_text()
 
     # TODO: Add param to parse comments as well.
     def read(self) -> typing.List[HostEntry]:
-        return [HostEntry(line.split()[0], line.split()[1:])
+        return [HostEntry.parse(line)
                 for line in self.read_raw().splitlines()
-                if line and not line.strip().startswith(COMMENT_CHAR)]
+                if line and not self._is_comment(line)]
+
+    # **** Remove **** #
+
+    # TODO: Add function for where one of the names has to exist to delete entry
+
+    def remove_entry_where(self, **kwargs):
+        with self.path.open('r') as f:
+            lines = f.readlines()
+
+        with self.path.open('w') as f:
+            for line in lines:
+                if self._is_comment(line):
+                    f.write(line)
+                elif HostEntry.parse(line).has(**kwargs):
+                    # Remove it
+                    continue
+                else:
+                    f.write(line)
+
+    # **** Private Utils **** #
+
+    def _parse(self):
+        pass
+
+    @staticmethod
+    def _is_comment(line):
+        return line.strip().startswith(COMMENT_CHAR)
