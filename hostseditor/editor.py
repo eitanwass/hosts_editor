@@ -33,20 +33,20 @@ class HostEntry:
 
 class HostsEditor:
     def __init__(self, path: str = None, create_backup: bool = True):
-        self.path = Path(path) or get_hosts_file_path()
-        self.backup_path = get_hosts_file_backup_path(path)
-        self.backup = None
+        self.path = Path(path) if path else get_hosts_file_path()
+        self.backup_path = get_hosts_file_backup_path(self.path)
+        self.memory_backup = None
 
         if create_backup:
             self.create_backup()
 
     def create_backup(self, physical: bool = True, memory: bool = True):
         if not physical and not memory:
-            print(f"create_backup called but both backup methods are disabled")
+            raise ValueError(f"create_backup called but both backup methods are disabled")
         if physical:
             copy(str(self.path), str(self.backup_path))
         if memory:
-            self.backup = self.read_raw()
+            self.memory_backup = self.read_raw()
 
     # **** Read **** #
 
