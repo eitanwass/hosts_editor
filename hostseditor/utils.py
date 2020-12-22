@@ -1,10 +1,13 @@
 import os
-import typing
+import platform
 from pathlib import Path
 
 
 def _get_common_hosts_file_dir() -> Path:
-    return Path(os.environ['DRIVERDATA']).parent / 'etc'
+    if platform.system() == 'Windows':
+        return Path(os.environ['DRIVERDATA']).parent / 'etc'
+    elif platform.system() == 'Linux':
+        return Path('/etc')
 
 
 def get_hosts_file_path() -> Path:
