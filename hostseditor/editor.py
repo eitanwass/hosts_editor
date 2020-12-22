@@ -30,6 +30,9 @@ class HostEntry:
             return False
         return True
 
+    def __repr__(self):
+        return f"{self.ip}\t{' '.join(self.names)}"
+
 
 class HostsEditor:
     def __init__(self, path: str = None, create_backup: bool = True):
@@ -57,7 +60,7 @@ class HostsEditor:
     def read(self) -> typing.List[HostEntry]:
         return [HostEntry.parse(line)
                 for line in self.read_raw().splitlines()
-                if line and not self._is_comment(line)]
+                if line.strip() and not self._is_comment(line)]
 
     # **** Remove **** #
 
