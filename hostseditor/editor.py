@@ -15,10 +15,9 @@ class HostEntry:
         self.names = names
 
     @staticmethod
-    def parse(line) -> typing.Union[HostEntry, None]:
-        if line and not line.strip().startswith(COMMENT_CHAR):
-            return HostEntry(line.split()[0], line.split()[1:])
-        return None
+    def parse(line: str) -> typing.Union[HostEntry]:
+        line_parts = line.split()
+        return HostEntry(line_parts[0], line_parts[1:])
 
     def has(self, **kwargs) -> bool:
         ip_filter = kwargs.get('ip')
@@ -54,6 +53,7 @@ class HostsEditor:
     # **** Read **** #
 
     def read_raw(self):
+        # TODO: Don't assume correct path. Check if file exists first
         return Path(self.path).read_text()
 
     # TODO: Add param to parse comments as well.
