@@ -18,5 +18,5 @@ setup(
     url="",
     packages=find_packages(),
     long_description=read('README.md'),
-    install_requires=read('requirement.txt').splitlines()
+    install_requires=read('requirements.txt').splitlines()
 )
