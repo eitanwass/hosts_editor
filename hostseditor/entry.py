@@ -4,7 +4,7 @@ import typing
 COMMENT_CHAR = "#"
 
 
-class HostEntry:
+class HostsEntry:
     """ An object representing an entry in the relevant hosts file. """
     def __init__(self, ip: str, names: typing.Union[str, typing.List[str]]):
         """
@@ -17,7 +17,7 @@ class HostEntry:
         self.names = names
 
     @staticmethod
-    def parse(line: str) -> HostEntry:
+    def parse(line: str) -> HostsEntry:
         """
         Parse a line into an HostEntry object.
 
@@ -25,7 +25,7 @@ class HostEntry:
         :return: The HostEntry object with the attributes of that line.
         """
         line_parts = line.split()
-        return HostEntry(line_parts[0], line_parts[1:])
+        return HostsEntry(line_parts[0], line_parts[1:])
 
     def has(self, ip: str = None, names: typing.Union[str, typing.List[str]] = None) -> bool:
         """

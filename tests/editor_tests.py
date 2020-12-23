@@ -2,6 +2,7 @@ from unittest import mock
 
 import pytest
 
+from hostseditor import HostsEntry
 from hostseditor.editor import HostsEditor
 from tests.conftest import TEST_HOSTS_CONTENT, TEST_HOSTS_CONTENT_NO_DATA, TEST_HOSTS_CONTENT_NO_LOCAL
 
@@ -41,6 +42,15 @@ def test_read__file_with_non_data_lines(m):
     """ Checks if read function returns only valid data lines. """
     hosts_editor = HostsEditor(create_backup=False)
     assert len(hosts_editor.read()) == 2
+
+
+def test_write_entry(tmpfile):
+    """Test writing an entry to the hosts file. """
+    entry_ip = "1.1.1.1"
+    entry_names = ["name0", "name1"]
+    hosts_editor = HostsEditor(str(tmpfile), False)
+    hosts_editor.write_entry(HostsEntry(entry_ip, entry_names))
+    assert f"{entry_ip}\t{' '.join(entry_names)}" == hosts_editor.read_raw()
 
 
 def test_remove_entry_where__without_kwargs(tmpfile):

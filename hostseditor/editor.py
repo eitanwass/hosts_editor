@@ -2,7 +2,7 @@ import typing
 from shutil import copy
 from pathlib import Path
 
-from hostseditor.entry import HostEntry
+from hostseditor.entry import HostsEntry
 from hostseditor.utils import get_hosts_file_path, get_hosts_file_backup_path
 
 
@@ -53,15 +53,28 @@ class HostsEditor:
         return Path(self.path).read_text()
 
     # TODO: Add param to parse comments as well.
-    def read(self) -> typing.List[HostEntry]:
+    def read(self) -> typing.List[HostsEntry]:
         """
         Read and parse hosts file entries.
 
         :return: A list of that kind of HostEntry objects representing the hosts file entries.
         """
-        return [HostEntry.parse(line)
+        return [HostsEntry.parse(line)
                 for line in self.read_raw().splitlines()
-                if line.strip() and not HostEntry.is_comment(line)]
+                if line.strip() and not HostsEntry.is_comment(line)]
+
+    # **** Write **** #
+
+    def write_entry(self, entry: HostsEntry):
+        """
+        Write an entry object to the hosts file.
+
+        :param entry: The entry to write to the end of the file.
+        """
+        # TODO: Check if already exists.
+        entry_str = str(entry)
+        with self.path.open('a') as f:
+            f.write(entry_str)
 
     # **** Remove **** #
 
@@ -78,7 +91,7 @@ class HostsEditor:
         lines = self.read_raw().splitlines()
 
         lines = [line for line in lines
-                 if HostEntry.is_comment(line) or not line.strip() or not HostEntry.parse(line).has(ip=ip, names=names)]
+                 if HostsEntry.is_comment(line) or not line.strip() or not HostsEntry.parse(line).has(ip=ip, names=names)]
 
         with self.path.open('w') as f:
             f.write('\n'.join(lines))
