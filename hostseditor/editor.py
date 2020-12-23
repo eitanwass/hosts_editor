@@ -1,36 +1,9 @@
-from __future__ import annotations
 import typing
 from shutil import copy
 from pathlib import Path
 
+from hostseditor.entry import HostEntry
 from hostseditor.utils import get_hosts_file_path, get_hosts_file_backup_path
-
-
-COMMENT_CHAR = "#"
-
-
-class HostEntry:
-    def __init__(self, ip: str, names: typing.List[str]):
-        self.ip = ip
-        self.names = names
-
-    @staticmethod
-    def parse(line: str) -> typing.Union[HostEntry]:
-        line_parts = line.split()
-        return HostEntry(line_parts[0], line_parts[1:])
-
-    def has(self, **kwargs) -> bool:
-        ip_filter = kwargs.get('ip')
-        names_filter = kwargs.get('names')
-
-        if ip_filter and self.ip != ip_filter:
-            return False
-        if names_filter and self.names != names_filter:
-            return False
-        return True
-
-    def __repr__(self):
-        return f"{self.ip}\t{' '.join(self.names)}"
 
 
 class HostsEditor:
@@ -60,31 +33,17 @@ class HostsEditor:
     def read(self) -> typing.List[HostEntry]:
         return [HostEntry.parse(line)
                 for line in self.read_raw().splitlines()
-                if line.strip() and not self._is_comment(line)]
+                if line.strip() and not HostEntry.is_comment(line)]
 
     # **** Remove **** #
 
     # TODO: Add function for where one of the names has to exist to delete entry
 
     def remove_entry_where(self, **kwargs):
-        with self.path.open('r') as f:
-            lines = f.readlines()
+        lines = self.read_raw().splitlines()
+
+        lines = [line for line in lines
+                 if HostEntry.is_comment(line) or not line.strip() or not HostEntry.parse(line).has(**kwargs)]
 
         with self.path.open('w') as f:
-            for line in lines:
-                if self._is_comment(line):
-                    f.write(line)
-                elif HostEntry.parse(line).has(**kwargs):
-                    # Remove it
-                    continue
-                else:
-                    f.write(line)
-
-    # **** Private Utils **** #
-
-    def _parse(self):
-        pass
-
-    @staticmethod
-    def _is_comment(line):
-        return line.strip().startswith(COMMENT_CHAR)
+            f.write('\n'.join(lines))
