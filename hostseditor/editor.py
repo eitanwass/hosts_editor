@@ -9,6 +9,8 @@ from hostseditor.utils import get_hosts_file_path, get_hosts_file_backup_path
 class HostsEditor:
     def __init__(self, path: str = None, create_backup: bool = True):
         self.path = Path(path) if path else get_hosts_file_path()
+        self.path.touch(exist_ok=True)
+        
         self.backup_path = get_hosts_file_backup_path(self.path)
         self.memory_backup = None
 
@@ -26,7 +28,6 @@ class HostsEditor:
     # **** Read **** #
 
     def read_raw(self):
-        # TODO: Don't assume correct path. Check if file exists first
         return Path(self.path).read_text()
 
     # TODO: Add param to parse comments as well.
