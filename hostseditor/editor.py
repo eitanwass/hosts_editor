@@ -10,7 +10,7 @@ class HostsEditor:
     def __init__(self, path: str = None, create_backup: bool = True):
         self.path = Path(path) if path else get_hosts_file_path()
         self.path.touch(exist_ok=True)
-        
+
         self.backup_path = get_hosts_file_backup_path(self.path)
         self.memory_backup = None
 
@@ -21,6 +21,8 @@ class HostsEditor:
         if not physical and not memory:
             raise ValueError(f"create_backup called but both backup methods are disabled")
         if physical:
+            if self.backup_path.exists():
+                print(f"Overriding existing backup file at {self.backup_path}")
             copy(str(self.path), str(self.backup_path))
         if memory:
             self.memory_backup = self.read_raw()
