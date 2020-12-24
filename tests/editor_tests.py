@@ -13,16 +13,16 @@ DATA_TWO_ENTRIES_COMMENT_BLANK_LINE = """127.0.0.1 name1
 0.0.0.0 name2 name3"""
 
 
-def test_create_backup__both_disabled():
-    hosts_editor = HostsEditor(create_backup=False)
+def test_create_backup__both_disabled(tmpfile):
+    hosts_editor = HostsEditor(str(tmpfile), create_backup=False)
     with pytest.raises(ValueError):
         hosts_editor.create_backup(False, False)
 
 
-def test_create_backup__physical(monkeypatch):
+def test_create_backup__physical(monkeypatch, tmpfile):
     copy_mock = mock.Mock()
     monkeypatch.setattr('hostseditor.editor.copy', copy_mock)
-    hosts_editor = HostsEditor(create_backup=False)
+    hosts_editor = HostsEditor(str(tmpfile), create_backup=False)
     hosts_editor.create_backup(True, False)
 
     assert copy_mock.called
@@ -37,10 +37,10 @@ def test_create_backup__memory(tmpfile):
     assert hosts_editor.memory_backup is not None
 
 
-@mock.patch('hostseditor.editor.HostsEditor.read_raw', return_value=DATA_TWO_ENTRIES_COMMENT_BLANK_LINE)
-def test_read__file_with_non_data_lines(m):
+def test_read__file_with_non_data_lines(tmpfile):
     """ Checks if read function returns only valid data lines. """
-    hosts_editor = HostsEditor(create_backup=False)
+    tmpfile.write_text(DATA_TWO_ENTRIES_COMMENT_BLANK_LINE)
+    hosts_editor = HostsEditor(str(tmpfile), create_backup=False)
     assert len(hosts_editor.read()) == 2
 
 

@@ -8,6 +8,7 @@ from hostseditor.utils import get_hosts_file_path, get_hosts_file_backup_path
 
 class HostsEditor:
     """ An editor for hosts files. """
+
     def __init__(self, path: str = None, create_backup: bool = True):
         """
         Creates an editor for the hosts file.
@@ -96,18 +97,24 @@ class HostsEditor:
 
     # TODO: Add function for where one of the names has to exist to delete entry
 
-    def remove_entry_where(self, ip: str = None, names: typing.Union[str, typing.List[str]] = None) -> None:
+    def remove_entry_where(self, ip: str = None, names: typing.Union[str, typing.List[str]] = None) -> bool:
         """
         Remove an entry where these attributes apply completely (not partially).
 
         :param ip: The IP of the entry to delete.
         :param names: The names of the entry to delete.
+        :return: Whether a line was removed.
         """
-        # TODO: Return bool based on success of deleting (say, if entry does not exist return False).
         lines = self.read_raw().splitlines()
 
-        lines = [line for line in lines
-                 if HostsEntry.is_comment(line) or not line.strip() or not HostsEntry.parse(line).has(ip=ip, names=names)]
+        data_lines = [line for line in lines
+                      if HostsEntry.is_comment(line) or
+                      not line.strip() or
+                      not HostsEntry.parse(line).has(ip=ip, names=names)]
 
         with self.path.open('w') as f:
-            f.write('\n'.join(lines))
+            f.write('\n'.join(data_lines))
+
+        new_lines = self.read_raw().splitlines()
+
+        return new_lines != lines
