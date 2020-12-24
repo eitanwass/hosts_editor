@@ -1,4 +1,5 @@
 import typing
+from time import time as cur_time
 from shutil import copy
 from pathlib import Path
 
@@ -19,16 +20,20 @@ class HostsEditor:
         self.path = Path(path) if path else get_hosts_file_path()
         self.path.touch(exist_ok=True)
 
-        self.backup_path = get_hosts_file_backup_path(self.path)
-        self.memory_backup = None
+        self._backup_path = get_hosts_file_backup_path(self.path)
+        self._memory_backup = None
+
+        self._last_physical_backup = 0
+        self._last_memory_backup = 0
 
         if create_backup:
             self.create_backup()
 
+    # **** Backup **** #
+
     def create_backup(self, physical: bool = True, memory: bool = True):
         """
         Back up the current state of the hosts file to another file or to memory.
-
 
         :param physical: Whether to back up the file to another backup file.
         :param memory: Whether to back up the file to memory.
@@ -36,12 +41,24 @@ class HostsEditor:
         """
         if not physical and not memory:
             raise ValueError(f"create_backup called but both backup methods are disabled")
-        if physical:
-            if self.backup_path.exists():
-                print(f"Overriding existing backup file at {self.backup_path}")
-            copy(str(self.path), str(self.backup_path))
         if memory:
-            self.memory_backup = self.read_raw()
+            self._memory_backup = self.read_raw()
+            self._last_memory_backup = cur_time()
+        if physical:
+            if self._backup_path.exists():
+                print(f"Overriding existing backup file at {self._backup_path}")
+            copy(str(self.path), str(self._backup_path))
+            self._last_physical_backup = cur_time()
+
+    def restore_backup(self) -> None:
+        """
+        Restore the newest backup to the original file.
+        If both physical and memory backups are at the same time, will prefer memory.
+        """
+        latest_backup = self._memory_backup \
+            if self._last_memory_backup >= self._last_physical_backup \
+            else self._backup_path.read_text()
+        self.path.write_text(latest_backup)
 
     # **** Read **** #
 

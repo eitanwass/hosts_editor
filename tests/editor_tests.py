@@ -26,7 +26,7 @@ def test_create_backup__physical(monkeypatch, tmpfile):
     hosts_editor.create_backup(True, False)
 
     assert copy_mock.called
-    assert not hosts_editor.memory_backup
+    assert not hosts_editor._memory_backup
 
 
 def test_create_backup__memory(tmpfile):
@@ -34,7 +34,25 @@ def test_create_backup__memory(tmpfile):
     hosts_editor = HostsEditor(str(tmpfile), False)
     hosts_editor.create_backup(False, True)
 
-    assert hosts_editor.memory_backup is not None
+    assert hosts_editor._memory_backup is not None
+
+
+@pytest.mark.parametrize(('physical_backup', 'memory_backup'), [
+    (True, False),
+    (False, True),
+    (True, True)
+])
+def test_restore_backup(tmpfile, physical_backup, memory_backup):
+    tmpfile.write_text(TEST_HOSTS_CONTENT)
+    hosts_editor = HostsEditor(str(tmpfile), False)
+    hosts_editor.create_backup(physical=physical_backup, memory=memory_backup)
+    hosts_editor["test_ip"] = "test_host"
+
+    assert hosts_editor.read_raw() != TEST_HOSTS_CONTENT
+
+    hosts_editor.restore_backup()
+
+    assert hosts_editor.read_raw() == TEST_HOSTS_CONTENT
 
 
 def test_read__file_with_non_data_lines(tmpfile):
