@@ -10,13 +10,25 @@ def read(fname: str):
 setup(
     name="hosts_editor",
     version="1.0.0",
+
     author="Ethan Wass",
     author_email="eitanwass@gmail.com",
-    description="A simple API for editing the hosts file.",
-    license="BSD",
+
+    license="MIT",
     keywords="hosts file editing api",
-    url="",
+    url="https://github.com/eitanwass/hosts_editor",
     packages=find_packages(),
+
+    description="A simple API for editing the hosts file.",
     long_description=read('README.md'),
-    install_requires=read('requirements.txt').splitlines()
+    long_description_content_type="text/markdown",
+
+    install_requires=read('requirements.txt').splitlines(),
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX :: Linux",
+    ],
+    python_requires=">=3.6",
 )
