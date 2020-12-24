@@ -65,7 +65,7 @@ class HostsEditor:
 
     # **** Write **** #
 
-    def write_entry(self, entry: HostsEntry):
+    def write_entry(self, entry: HostsEntry) -> None:
         """
         Write an entry object to the hosts file.
 
@@ -79,6 +79,18 @@ class HostsEditor:
                 if not self.path.read_text().endswith('\n'):
                     f.write('\n')
             f.write(entry_str)
+
+    def __setitem__(self, ip: str, names: typing.Union[str, typing.List[str]]) -> None:
+        """
+        Write an entry through the use of item assignments:
+        E.g. hosts_editor["127.0.0.1"] = "www.mysite.com"
+        or for multiple names:
+        hosts_editor["127.0.0.1"] = ["host_name0", "host_name1", ...]
+
+        :param ip: The ip of the entry.
+        :param names: The names of the hosts assigned to that IP.
+        """
+        self.write_entry(HostsEntry(ip, names))
 
     # **** Remove **** #
 
