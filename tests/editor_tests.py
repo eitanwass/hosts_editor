@@ -48,6 +48,7 @@ def test_write_entry(tmpfile):
     """Test writing an entry to the hosts file. """
     entry_ip = "1.1.1.1"
     entry_names = ["name0", "name1"]
+    print(tmpfile)
     hosts_editor = HostsEditor(str(tmpfile), False)
     hosts_editor.write_entry(HostsEntry(entry_ip, entry_names))
     assert f"{entry_ip}\t{' '.join(entry_names)}" == hosts_editor.read_raw()

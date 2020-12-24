@@ -74,6 +74,10 @@ class HostsEditor:
         # TODO: Check if already exists.
         entry_str = str(entry)
         with self.path.open('a') as f:
+            cur_data = self.path.read_text()
+            if cur_data:
+                if not self.path.read_text().endswith('\n'):
+                    f.write('\n')
             f.write(entry_str)
 
     # **** Remove **** #
