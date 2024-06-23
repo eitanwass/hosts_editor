@@ -11,10 +11,10 @@ Supports Windows and Linux.\
 Should support both x86 and x64 systems (Tested only on x64 systems though).\
 Tested on: Windows 10 x64, Linux Ubuntu 20 x64
 
-examples: (run the script as administrator)
+examples: 
 ```
 import hostseditor # pip install hosts_editor
-hosts = hostseditor.HostsEditor()
+hosts = hostseditor.HostsEditor(create_backup=False)
 print( list(hosts.read()) )
 hosts.write_entry( hostseditor.HostsEntry('127.0.0.1', ['qwer.local', 'qwer2.local']) ) # add
 hosts.write_entry( hostseditor.HostsEntry('127.0.0.1', ['asd.local']) )
